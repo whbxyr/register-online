@@ -1,5 +1,5 @@
 // 首先引入样式表
-import './less/common.less';
+import './sass/common.less';
 import React, {Component, Prototype} from 'react';
 import ReactDOM, {render} from 'react-dom';
 
