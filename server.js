@@ -46,10 +46,15 @@ app.post('/api/del/:id', function (req, res) {
         for (let i = 0; i < list.length; i++) {
             if (list[i].id === id) {
                 list.splice(i, 1);
+                let j = 1;
+                // 重排数据，使得序号有序且唯一
+                for (let item of list) {
+                    item.id = j++;
+                }
                 fs.writeFile(dataurl, JSON.stringify(list)); //保存删除后的文件
                 return res.json({
                     msg: '删除成功',
-                    data: null,
+                    data: list,
                     status: true
                 });
             }
@@ -75,16 +80,12 @@ app.post('/api/edit/:id', function (req, res) {
         }
 
         let list = JSON.parse(text);
-        console.log('req.body:' + JSON.stringify(req.body));
-        console.log('req.query:' + JSON.stringify(req.query));
-        console.log('req.params:' + JSON.stringify(req.params));
-        console.log('req.payload:' + JSON.stringify(req.payload));
-        console.log('req' + req.toString());
         let {id, image, name, age, phone, phrase} = req.body;
+        id = parseInt(id);
         let data = {id, image, name, age, phone, phrase};
 
         for (let i = 0; i < list.length; i++) {
-            if (list[i].id == id) {
+            if (list[i].id === id) {
                 list[i] = data;
                 fs.writeFile(dataurl, JSON.stringify(list)); //保存删除后的文件
                 return res.json({
@@ -95,9 +96,8 @@ app.post('/api/edit/:id', function (req, res) {
             }
         }
 
-        // id < 0 说明是新增
-        if (req.params.id < 0) {
-            data.id = new Date().getTime(); // 暂时用它模拟生成唯一id
+        // id 等于原有的数据项的长度加一，说明是新增
+        if (id === list.length + 1) {
             list.push(data);
             fs.writeFile(dataurl, JSON.stringify(list)); // 保存删除后的文件
             return res.json({
