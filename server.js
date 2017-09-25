@@ -31,7 +31,7 @@ app.get('/api/list', function (req, res) {
 /**
  * 删除数据
  */
-app.get('/api/del/:id', function (req, res) {
+app.post('/api/del/:id', function (req, res) {
     fs.readFile(dataurl, 'utf-8', function (err, text) {
         if (err) {
             return res.json({
@@ -42,7 +42,7 @@ app.get('/api/del/:id', function (req, res) {
         }
 
         let list = JSON.parse(text);
-        let {id} = req.params;
+        let id = parseInt(req.body.id);
         for (let i = 0; i < list.length; i++) {
             if (list[i].id === id) {
                 list.splice(i, 1);
@@ -97,10 +97,9 @@ app.post('/api/edit/:id', function (req, res) {
 
         // id < 0 说明是新增
         if (req.params.id < 0) {
-            data.id = new Date().getTime(); //暂时用它模拟生成唯一id
+            data.id = new Date().getTime(); // 暂时用它模拟生成唯一id
             list.push(data);
-            // console.log(data);
-            fs.writeFile(dataurl, JSON.stringify(list)); //保存删除后的文件
+            fs.writeFile(dataurl, JSON.stringify(list)); // 保存删除后的文件
             return res.json({
                 msg: '保存成功',
                 data: data,

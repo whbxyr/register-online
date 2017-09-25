@@ -90,8 +90,13 @@ export default class App extends Component {
         }
         this.setState({list});
         if (data.id > 0) {
-            fetch(`/api/del/${data.id}`)
-                .then((res) => {
+            fetch(`/api/del/${data.id}`, {
+                method: 'post',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `id=${data.id}`
+            }).then((res) => {
                     return res.json();
                 })
                 .then((res) => {
@@ -109,7 +114,7 @@ export default class App extends Component {
         list.push({
             id: --this.aid,
             name: '',
-            image: 'http://localhost:3001/images/4.jpg',
+            image: '/images/4.jpg',
             age: 18,
             phone: '',
             phrase: '',
