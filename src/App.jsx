@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react';
+import React, {Component} from 'react';
+import PropTypes from 'prop-types';
 
 // 序列化参数
 function formData(data) {
@@ -12,8 +13,7 @@ export default class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            list: [],
-            aid: 0
+            list: []
         };
         this.searchName = this.searchName.bind(this);
         this.editItem = this.editItem.bind(this);
@@ -22,7 +22,6 @@ export default class App extends Component {
         this.addItem = this.addItem.bind(this);
         this.sortMax = this.sortMax.bind(this);
         this.sortMin = this.sortMin.bind(this);
-        this.aid = 0;
     }
 
     // 查询姓名
@@ -52,14 +51,6 @@ export default class App extends Component {
     };
     // 更新数据
     updateItem(data) {
-        let {list} = this.state;
-        for (let i = 0; i < list.length; i++) {
-            if (list[i].id === data.id) {
-                list[i] = data;
-                break;
-            }
-        }
-        this.setState({list});
         fetch(`/api/edit/${data.id}`, {
             method: 'post',
             headers: {
@@ -69,11 +60,19 @@ export default class App extends Component {
         }).then((res) => {
             return res.json();
         }).then((res) => {
-            // 表示更新成功
             alert(res.msg);
+            // 表示更新成功
             if (res.data) {
-                data.id = res.data.id;
+                let {list} = this.state;
+                for (let i = 0; i < list.length; i++) {
+                    if (list[i].id === res.data.id) {
+                        list[i] = res.data;
+                        break;
+                    }
+                }
                 this.setState({list});
+            } else {
+                data.editState = true;
             }
         }).catch((e) => {
             alert('更新失败');
@@ -81,40 +80,35 @@ export default class App extends Component {
     };
     // 删除项目
     delItem(data) {
-        let {list} = this.state;
-        for (let i = 0; i < list.length; i++) {
-            if (list[i].id === data.id) {
-                list.splice(i, 1);
-                break;
-            }
-        }
-        this.setState({list});
-        if (data.id > 0) {
-            fetch(`/api/del/${data.id}`, {
-                method: 'post',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: `id=${data.id}`
-            }).then((res) => {
-                    return res.json();
-                })
-                .then((res) => {
-                    alert(res.msg);
-                })
-                .catch((e) => {
-                    alert('删除失败');
-                });
-        }
+        fetch(`/api/del/${data.id}`, {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: `id=${data.id}`
+        }).then((res) => {
+                return res.json();
+            })
+            .then((res) => {
+                alert(res.msg);
+                if (res.data) {
+                    this.setState({
+                        list: res.data
+                    });
+                }
+            })
+            .catch((e) => {
+                alert('删除失败');
+            });
     };
 
     // 添加项目
     addItem() {
         let {list} = this.state;
         list.push({
-            id: --this.aid,
+            id: this.state.list.length + 1,
             name: '',
-            image: '/images/4.jpg',
+            image: `/images/${Math.floor(9 * Math.random() + 1)}.jpg`,
             age: 18,
             phone: '',
             phrase: '',
@@ -195,7 +189,7 @@ class Item extends Component {
     }
 
     editItem() {
-        let {id, image, editState = true, editItem} = this.props.item;
+        let {id, image, editState = true} = this.props.item;
         if (editState) {
             this.props.editItem(this.props.item);
         }
@@ -220,11 +214,11 @@ class Item extends Component {
     };
 
     render() {
-        var {id, image, name, age, phone, phrase, display, editState = true} = this.props.item;
-        var btnname = editState ? '修改' : '保存';
+        let {id, image, name, age, phone, phrase, display, editState = true} = this.props.item;
+        let btnname = editState ? '修改' : '保存';
         return (
             <tr style={{display}}>
-                <td>{id > 0 ? id : ''}</td>
+                <td>{id}</td>
                 <td>
                     <img className="headimg" src={image} alt={name}/>
                 </td>
