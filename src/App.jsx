@@ -9,43 +9,6 @@ function formData(data) {
     return arr.join('&');
 }
 export default class App extends Component {
-    render() {
-        return (
-            <div className="container">
-                <header><input className="search" placeholder="输入搜索"/></header>
-                <main>
-                    <div className="table">
-                        <table>
-                            <thead>
-                            <tr>
-                                <th>序号</th>
-                                <th>头像</th>
-                                <th>名字</th>
-                                <th>
-                                    年龄(<a href="javascript:;" onClick={this.sortMax}>大</a> | <a href="javascript:;" onClick={this.sortMin}>小</a>)
-                                </th>
-                                <th>手机</th>
-                                <th>座右铭</th>
-                                <th>操作</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {
-                                this.state.list.map((item) => {
-                                    return <Item item={item} key={item.id} editItem={this.editItem} updateItem={this.updateItem} delItem={this.delItem}/>
-                                })
-                            }
-                            </tbody>
-                        </table>
-                    </div>
-                </main>
-                <footer>
-                    <button className="adddata" onClick={this.addItem}>添加数据</button>
-                </footer>
-            </div>
-        );
-    }
-
     constructor(props) {
         super(props);
         this.state = {
@@ -100,7 +63,7 @@ export default class App extends Component {
         fetch(`/api/edit/${data.id}`, {
             method: 'post',
             headers: {
-                'Content-Type': 'application/x-www-form-urlencode'
+                'Content-Type': 'application/x-www-form-urlencoded'
             },
             body: formData(data)
         }).then((res) => {
@@ -139,14 +102,14 @@ export default class App extends Component {
                 });
         }
     };
-    // aid = 0;
+
     // 添加项目
     addItem() {
         let {list} = this.state;
         list.push({
             id: --this.aid,
             name: '',
-            image: 'http://localhost:3000/images/4.jpg',
+            image: 'http://localhost:3001/images/4.jpg',
             age: 18,
             phone: '',
             phrase: '',
@@ -168,6 +131,7 @@ export default class App extends Component {
         this.setState({list});
     }
 
+    // 一般均在componentDidMount的时候才去做异步请求，这样能保障安全挂载安全使用setState
     componentDidMount() {
         //从服务器拉取数据
         fetch('/api/list')
@@ -180,6 +144,43 @@ export default class App extends Component {
             .catch((e) => {
                 alert('加载失败，请稍后重试！');
             });
+    }
+
+    render() {
+        return (
+            <div className="container">
+                <header><input className="search" placeholder="输入搜索"/></header>
+                <main>
+                    <div className="table">
+                        <table>
+                            <thead>
+                            <tr>
+                                <th>序号</th>
+                                <th>头像</th>
+                                <th>名字</th>
+                                <th>
+                                    年龄(<a href="javascript:;" onClick={this.sortMax}>大</a> | <a href="javascript:;" onClick={this.sortMin}>小</a>)
+                                </th>
+                                <th>手机</th>
+                                <th>座右铭</th>
+                                <th>操作</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {
+                                this.state.list.map((item) => {
+                                    return <Item item={item} key={item.id} editItem={this.editItem} updateItem={this.updateItem} delItem={this.delItem}/>
+                                })
+                            }
+                            </tbody>
+                        </table>
+                    </div>
+                </main>
+                <footer>
+                    <button className="adddata" onClick={this.addItem}>添加数据</button>
+                </footer>
+            </div>
+        );
     }
 }
 class Item extends Component {
